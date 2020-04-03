@@ -69,7 +69,6 @@ def runAsScript():
 
     try:
         scriptParams = client.getInputs(unwrap=True)
-        print scriptParams
 
         # wrap client to use the Blitz Gateway
         conn = BlitzGateway(client_obj=client)
