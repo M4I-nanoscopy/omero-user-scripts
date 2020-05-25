@@ -35,10 +35,19 @@ def processImages(client, conn, scriptParams):
 
     # Get the channel offsets
     for image in images:
-         metadata = dict(image.loadOriginalMetadata()[1])
-         pi = image.getPrimaryPixels()
-         pixelsService.setChannelGlobalMinMax(pi.getId(), 0, metadata['Min'], metadata['Max'], conn.SERVICE_OPTS)
-         renderingService.setOriginalSettingsInImage(image.getId())      
+        min, max = 0, 65535
+        for ann in image.listAnnotations():
+            if isinstance(ann, omero.gateway.MapAnnotationWrapper):
+                kvs = ann.getValue()
+                for k, v in kvs:
+                    if k == "MinSampleValue":
+                        min = v
+                    elif k == "MaxSampleValue":
+                        max = v
+
+        pi = image.getPrimaryPixels()
+        pixelsService.setChannelGlobalMinMax(pi.getId(), 0, int(min), int(max), conn.SERVICE_OPTS)
+        renderingService.setOriginalSettingsInImage(image.getId())
 
     return message
 
